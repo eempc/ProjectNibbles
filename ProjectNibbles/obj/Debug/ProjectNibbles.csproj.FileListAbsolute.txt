@@ -1,0 +1,17 @@
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\MyCars.mdf
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\MyCars_log.ldf
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\ProjectNibbles.exe.config
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\ProjectNibbles.exe
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\ProjectNibbles.pdb
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.csprojResolveAssemblyReference.cache
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.Form1.resources
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.Properties.Resources.resources
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.csproj.GenerateResource.Cache
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.csproj.CoreCompileInputs.cache
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.exe
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\obj\Debug\ProjectNibbles.pdb
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\HtmlAgilityPack.dll
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\Newtonsoft.Json.dll
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\HtmlAgilityPack.pdb
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\HtmlAgilityPack.xml
+D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\bin\Debug\Newtonsoft.Json.xml
