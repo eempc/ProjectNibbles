@@ -19,13 +19,16 @@ namespace ProjectNibbles {
 
         OrderedDictionary currentCar = new OrderedDictionary();
         string[] attributes = { "vrn", "vehicle_make", "vehicle_model", "vehicle_registration_year", "seller_type", "vehicle_mileage", "vehicle_colour", "price", "vehicle_not_writeoff", "vehicle_vhc_checked", "url", "location", "mot_expiry" };
+        
 
         public void InitStuff() {
             //Initialise the FBD and the ordered dictionary because a Car class would suck
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
+
             
+
             foreach (string attr in attributes)
                 currentCar.Add(attr, "");
         }
@@ -59,6 +62,7 @@ namespace ProjectNibbles {
                     //Extracting the non-JSON data
                     currentCar[attributes[10]] = ExtractRegex(fullHTML, "https://", " -->"); //Saved Chrome files have the URL in the second line
                     currentCar[attributes[11]] = ExtractLocation(fullHTML).Replace(",", "");
+                    //currentCar[attributes[12]] = null;
 
                     //Add VRN to column 0 and the rest of the attributes to ListView preparation
                     ListViewItem car = new ListViewItem(currentCar[attributes[0]].ToString());
@@ -74,30 +78,50 @@ namespace ProjectNibbles {
         SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
 
         private void button_commit_to_db_Click(object sender, EventArgs e) {
-
+            CommitToDB();
         }
 
-        public bool VerifyRecord(string vrn) {
-            bool x;
+        public bool VerifyRecord(string vrn) {           
             connect.Open();
             SqlCommand command = connect.CreateCommand();
             command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
             command.Parameters.AddWithValue("@vrn", vrn);
-            x = ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
+            bool x = ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
             connect.Close();
             return x;
         }
 
-        public void Add() {
-            using (connect) {
+        public void CommitToDB() {
+            foreach (ListViewItem row in listView1.Items) {
+                connect.Open();
                 SqlCommand command = connect.CreateCommand();
-                using (command) {
-                    connect.Open();
-                   // command.CommandText = "INSERT INTO MyCars (VRN, Make, Model)" +
-                      //  "VALUES (@vrn, @make, @model)";
-                    //command.Parameters.AddWithValue();
+                //Concatenators are bad apparently
+                command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
+
+                //Save this comment for future
+                //command.Parameters.AddWithValue("@vrn",                         row.SubItems[0].Text.ToString().Replace(" ",""));
+                //command.Parameters.AddWithValue("@vehicle_make",                row.SubItems[1].Text.ToString());
+                //command.Parameters.AddWithValue("@vehicle_model",               row.SubItems[2].Text.ToString());
+                //command.Parameters.AddWithValue("@vehicle_registration_year",   Int32.Parse(row.SubItems[3].Text.ToString()));
+                //command.Parameters.AddWithValue("@seller_type",                 row.SubItems[4].Text.ToString());
+                //command.Parameters.AddWithValue("@vehicle_mileage",             Int32.Parse(row.SubItems[5].Text.ToString()));
+                //command.Parameters.AddWithValue("@vehicle_colour",              row.SubItems[6].Text.ToString());
+                //command.Parameters.AddWithValue("@price",                       Int32.Parse(row.SubItems[7].Text.ToString()));
+                //command.Parameters.AddWithValue("@vehicle_not_writeoff",        Boolean.Parse(row.SubItems[8].Text.ToString()));
+                //command.Parameters.AddWithValue("@vehicle_vhc_checked",         Boolean.Parse(row.SubItems[9].Text.ToString()));
+                //command.Parameters.AddWithValue("@url",                         row.SubItems[10].Text.ToString());
+                //command.Parameters.AddWithValue("@location",                    row.SubItems[11].Text.ToString());
+                //command.Parameters.AddWithValue("@mot_expiry",                  DateTime.Now);
+
+                //Implicit conversions
+                for (int i = 0; i < attributes.Length; i++) {
+                    command.Parameters.AddWithValue("@" + attributes[i], row.SubItems[i].Text.ToString());
                 }
+
+                command.ExecuteNonQuery();
+                connect.Close();
             }
+
         }
 
         public string ExtractRegex(string source, string start, string end) {
@@ -114,14 +138,18 @@ namespace ProjectNibbles {
         }
 
         private void button1_Click(object sender, EventArgs e) {
-            tempBox.AppendText(VerifyRecord("TEST002").ToString());
+            //tempBox.AppendText(VerifyRecord("TEST002").ToString());
+            //tempBox.AppendText("INSERT INTO MyCars (" + string.Join(", ", attributes) + ")");
+            string[] temp = attributes.Select(x => "@" + x).ToArray();
+            //foreach (string x in temp) tempBox.AppendText(x + "\n");
+            tempBox.AppendText(string.Join(", ", attributes.Select(x => "@" + x).ToArray())); //Hilarious
         }
 
         public void OutTest() {
             //Retrieve data from the ListView for when push to the database
             foreach (ListViewItem row in listView1.Items) {
                 for (int i = 0; i < row.SubItems.Count; i++) {
-                    tempBox.AppendText(row.SubItems[i].Text.ToString() + "\n");
+                    tempBox.AppendText(row.SubItems[i] + "\n");
                 }
             }
         }
