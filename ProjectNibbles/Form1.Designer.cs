@@ -53,6 +53,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.tempBox = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -112,10 +113,11 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(26, 43);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(920, 460);
+            this.tabControl1.Size = new System.Drawing.Size(1008, 510);
             this.tabControl1.TabIndex = 2;
             // 
             // tabPage1
@@ -124,7 +126,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(912, 434);
+            this.tabPage1.Size = new System.Drawing.Size(1000, 484);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Add page";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -139,9 +141,9 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(906, 428);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(994, 478);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel2
@@ -152,12 +154,13 @@
             this.tableLayoutPanel2.Controls.Add(this.button_add_to_list, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.button_commit_to_db, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.tempBox, 0, 1);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 324);
+            this.tableLayoutPanel2.Controls.Add(this.button1, 1, 1);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 289);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(891, 100);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(988, 186);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // button_add_to_list
@@ -172,7 +175,7 @@
             // 
             // button_commit_to_db
             // 
-            this.button_commit_to_db.Location = new System.Drawing.Point(448, 3);
+            this.button_commit_to_db.Location = new System.Drawing.Point(497, 3);
             this.button_commit_to_db.Name = "button_commit_to_db";
             this.button_commit_to_db.Size = new System.Drawing.Size(94, 43);
             this.button_commit_to_db.TabIndex = 1;
@@ -199,10 +202,11 @@
             this.columnHeader14});
             this.listView1.Location = new System.Drawing.Point(3, 3);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(891, 273);
+            this.listView1.Size = new System.Drawing.Size(988, 266);
             this.listView1.TabIndex = 1;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
             // 
             // columnHeader1
             // 
@@ -276,12 +280,22 @@
             // 
             // tempBox
             // 
-            this.tempBox.Location = new System.Drawing.Point(3, 53);
+            this.tempBox.Location = new System.Drawing.Point(3, 96);
             this.tempBox.Multiline = true;
             this.tempBox.Name = "tempBox";
             this.tempBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tempBox.Size = new System.Drawing.Size(436, 44);
+            this.tempBox.Size = new System.Drawing.Size(488, 87);
             this.tempBox.TabIndex = 2;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(497, 96);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
@@ -293,7 +307,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Project Nibbles";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -340,6 +354,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.TextBox tempBox;
+        private System.Windows.Forms.Button button1;
     }
 }
 
