@@ -20,26 +20,21 @@ namespace ProjectNibbles {
         OrderedDictionary currentCar = new OrderedDictionary();
         string[] attributes = { "vrn", "vehicle_make", "vehicle_model", "vehicle_registration_year", "seller_type", "vehicle_mileage", "vehicle_colour", "price", "vehicle_not_writeoff", "vehicle_vhc_checked", "url", "location", "mot_expiry" };
         
-
         public void InitStuff() {
-            //Initialise the FBD and the ordered dictionary because a Car class would suck
+            //Initialise the FBD and the ordered dictionary with empty strings because a Car class would suck
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
-
-            
-
+ 
             foreach (string attr in attributes)
                 currentCar.Add(attr, "");
         }
 
-
-
         private void button_add_to_list_Click(object sender, EventArgs e) {
-            M1();
+            AddToListView();
         }
 
-        public void M1() {
+        public void AddToListView() {
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
                 foreach (string fileName in openFileDialog1.FileNames) {
                     string fullHTML = File.ReadAllText(fileName);
@@ -47,7 +42,7 @@ namespace ProjectNibbles {
                     //tempBox.AppendText(dataLayer);
                     dynamic obj = JsonConvert.DeserializeObject(dataLayer);
 
-                    //Extracting the JSON data
+                    //Extracting the JSON data - if only I could loop this...
                     currentCar[attributes[0]] = obj[0].a.attr.vrn;
                     currentCar[attributes[1]] = obj[0].a.attr.vehicle_make;
                     currentCar[attributes[2]] = obj[0].a.attr.vehicle_model;
@@ -62,9 +57,8 @@ namespace ProjectNibbles {
                     //Extracting the non-JSON data
                     currentCar[attributes[10]] = ExtractRegex(fullHTML, "https://", " -->"); //Saved Chrome files have the URL in the second line
                     currentCar[attributes[11]] = ExtractLocation(fullHTML).Replace(",", "");
-                    //currentCar[attributes[12]] = null;
 
-                    //Add VRN to column 0 and the rest of the attributes to ListView preparation
+                    //Add VRN to column 0 inside the declaration/init and add the rest of the attributes to ListView preparation
                     ListViewItem car = new ListViewItem(currentCar[attributes[0]].ToString());
                     for (int i = 1; i < currentCar.Count; i++) 
                         car.SubItems.Add(currentCar[attributes[i]].ToString());
@@ -99,11 +93,10 @@ namespace ProjectNibbles {
                     //Concatenators are bad apparently
                     command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
 
-                    //Implicit conversions
-                    for (int i = 0; i < attributes.Length; i++) {
+                    //Implicit conversions from ListViewItem.ToString to the value types in the DB
+                    for (int i = 0; i < attributes.Length; i++) 
                         command.Parameters.AddWithValue("@" + attributes[i], row.SubItems[i].Text.ToString());
-                    }
-
+                    
                     command.ExecuteNonQuery();
                     connect.Close();
                 }
@@ -123,21 +116,13 @@ namespace ProjectNibbles {
             return singleNode.InnerText.ToString();
         }
 
+        //Temp button
         private void button1_Click(object sender, EventArgs e) {
             //tempBox.AppendText(VerifyRecord("TEST002").ToString());
             //tempBox.AppendText("INSERT INTO MyCars (" + string.Join(", ", attributes) + ")");
             string[] temp = attributes.Select(x => "@" + x).ToArray();
             //foreach (string x in temp) tempBox.AppendText(x + "\n");
             tempBox.AppendText(string.Join(", ", attributes.Select(x => "@" + x).ToArray())); //Hilarious
-        }
-
-        public void OutTest() {
-            //Retrieve data from the ListView for when push to the database
-            foreach (ListViewItem row in listView1.Items) {
-                for (int i = 0; i < row.SubItems.Count; i++) {
-                    tempBox.AppendText(row.SubItems[i] + "\n");
-                }
-            }
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e) {
