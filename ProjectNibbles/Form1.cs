@@ -93,35 +93,21 @@ namespace ProjectNibbles {
 
         public void CommitToDB() {
             foreach (ListViewItem row in listView1.Items) {
-                connect.Open();
-                SqlCommand command = connect.CreateCommand();
-                //Concatenators are bad apparently
-                command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
+                if (VerifyRecord(row.SubItems[0].Text.ToString()) == false) {
+                    connect.Open();
+                    SqlCommand command = connect.CreateCommand();
+                    //Concatenators are bad apparently
+                    command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
 
-                //Save this comment for future
-                //command.Parameters.AddWithValue("@vrn",                         row.SubItems[0].Text.ToString().Replace(" ",""));
-                //command.Parameters.AddWithValue("@vehicle_make",                row.SubItems[1].Text.ToString());
-                //command.Parameters.AddWithValue("@vehicle_model",               row.SubItems[2].Text.ToString());
-                //command.Parameters.AddWithValue("@vehicle_registration_year",   Int32.Parse(row.SubItems[3].Text.ToString()));
-                //command.Parameters.AddWithValue("@seller_type",                 row.SubItems[4].Text.ToString());
-                //command.Parameters.AddWithValue("@vehicle_mileage",             Int32.Parse(row.SubItems[5].Text.ToString()));
-                //command.Parameters.AddWithValue("@vehicle_colour",              row.SubItems[6].Text.ToString());
-                //command.Parameters.AddWithValue("@price",                       Int32.Parse(row.SubItems[7].Text.ToString()));
-                //command.Parameters.AddWithValue("@vehicle_not_writeoff",        Boolean.Parse(row.SubItems[8].Text.ToString()));
-                //command.Parameters.AddWithValue("@vehicle_vhc_checked",         Boolean.Parse(row.SubItems[9].Text.ToString()));
-                //command.Parameters.AddWithValue("@url",                         row.SubItems[10].Text.ToString());
-                //command.Parameters.AddWithValue("@location",                    row.SubItems[11].Text.ToString());
-                //command.Parameters.AddWithValue("@mot_expiry",                  DateTime.Now);
+                    //Implicit conversions
+                    for (int i = 0; i < attributes.Length; i++) {
+                        command.Parameters.AddWithValue("@" + attributes[i], row.SubItems[i].Text.ToString());
+                    }
 
-                //Implicit conversions
-                for (int i = 0; i < attributes.Length; i++) {
-                    command.Parameters.AddWithValue("@" + attributes[i], row.SubItems[i].Text.ToString());
+                    command.ExecuteNonQuery();
+                    connect.Close();
                 }
-
-                command.ExecuteNonQuery();
-                connect.Close();
             }
-
         }
 
         public string ExtractRegex(string source, string start, string end) {
