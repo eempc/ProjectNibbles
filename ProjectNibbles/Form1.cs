@@ -78,15 +78,14 @@ namespace ProjectNibbles {
         }
 
         public bool VerifyRecord(string vrn) {
-            using (connect) {
-                SqlCommand command = connect.CreateCommand();
-                using (command) {
-                    connect.Open();
-                    command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
-                    command.Parameters.AddWithValue("@vrn", vrn);
-                    return ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
-                }   
-            }
+            bool x;
+            connect.Open();
+            SqlCommand command = connect.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
+            command.Parameters.AddWithValue("@vrn", vrn);
+            x = ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
+            connect.Close();
+            return x;
         }
 
         public void Add() {
