@@ -132,7 +132,7 @@ namespace ProjectNibbles {
 
         }
 
-        //Delete via VRN. Not going to delete by a criteria just yet, like delete all cars with price >5000.
+        //Delete via VRN. Not going to delete by a criteria just yet, e.g. delete all cars with price >5000.
         public void DeleteRecord(string vrn) {
             connect.Open();
             SqlCommand command = connect.CreateCommand();
@@ -164,9 +164,24 @@ namespace ProjectNibbles {
             }
 
             connect.Close();
-
         }
 
+        private void button_update_record_Click(object sender, EventArgs e) {
+            DateTime dt = new DateTime(2025, 6, 25);
+            string selectedVRN = listView2.SelectedItems[0].Text;
+            UpdateMOT(selectedVRN,dt);
+        }
+
+        //Update MOT 
+        public void UpdateMOT(string vrn, DateTime dt) {
+            connect.Open();
+            SqlCommand command = connect.CreateCommand();
+            command.CommandText = "UPDATE MyCars SET mot_expiry = @dt WHERE vrn = @vrn";
+            command.Parameters.AddWithValue("@dt", dt);
+            command.Parameters.AddWithValue("@vrn", vrn);
+            command.ExecuteNonQuery();
+            connect.Close();
+        }
 
         //Temp button
         private void button1_Click(object sender, EventArgs e) {
@@ -175,7 +190,11 @@ namespace ProjectNibbles {
             //string[] temp = attributes.Select(x => "@" + x).ToArray();
             //foreach (string x in temp) tempBox.AppendText(x + "\n");
             //tempBox.AppendText(string.Join(", ", attributes.Select(x => "@" + x).ToArray())); //Hilarious
-            DeleteRecord("LS07JWP"); //Goodnight Passat - absolutely nothing happens if you try to delete a non-existent record. Could do the verify though.
+            //DeleteRecord("LS07JWP"); //Goodnight Passat - absolutely nothing happens if you try to delete a non-existent record. Could do the verify though.
+
+            //Get selected item in ListView, output that to box
+            string text = listView1.SelectedItems[0].Text; //Returns column 0, i.e. the VRN
+            tempBox.AppendText(text);
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e) {
@@ -185,7 +204,7 @@ namespace ProjectNibbles {
             }
         }
 
-
+ 
     }
 
     // For reference
