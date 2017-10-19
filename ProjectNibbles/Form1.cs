@@ -127,6 +127,12 @@ namespace ProjectNibbles {
             return singleNode.InnerText.ToString();
         }
 
+        //Delete part - easy enough, extract reg number from selected ListViewItem
+        private void button_delete_Click(object sender, EventArgs e) {
+
+        }
+
+        //Delete via VRN. Not going to delete by a criteria just yet, like delete all cars with price >5000.
         public void DeleteRecord(string vrn) {
             connect.Open();
             SqlCommand command = connect.CreateCommand();
@@ -136,13 +142,40 @@ namespace ProjectNibbles {
             connect.Close();
         }
 
+        private void button_display_all_Click(object sender, EventArgs e) {
+            DisplayAll();
+        }
+
+        //Display All
+        public void DisplayAll() {
+            connect.Open();
+            SqlCommand command = connect.CreateCommand();
+            command.CommandText = "SELECT * FROM MyCars";
+            SqlDataReader reader = command.ExecuteReader();
+
+            listView2.Items.Clear();
+
+            while (reader.Read()) {
+                ListViewItem car = new ListViewItem(reader[attributes[0]].ToString()); //VRN first in column 0
+                for (int i = 1; i < attributes.Length; i++) {
+                    car.SubItems.Add(reader[attributes[i]].ToString());
+                }
+                listView2.Items.Add(car); //Alternative the method done in AddToListView();
+            }
+
+            connect.Close();
+
+        }
+
+
         //Temp button
         private void button1_Click(object sender, EventArgs e) {
             //tempBox.AppendText(VerifyRecord("TEST002").ToString());
             //tempBox.AppendText("INSERT INTO MyCars (" + string.Join(", ", attributes) + ")");
-            string[] temp = attributes.Select(x => "@" + x).ToArray();
+            //string[] temp = attributes.Select(x => "@" + x).ToArray();
             //foreach (string x in temp) tempBox.AppendText(x + "\n");
-            tempBox.AppendText(string.Join(", ", attributes.Select(x => "@" + x).ToArray())); //Hilarious
+            //tempBox.AppendText(string.Join(", ", attributes.Select(x => "@" + x).ToArray())); //Hilarious
+            DeleteRecord("LS07JWP"); //Goodnight Passat - absolutely nothing happens if you try to delete a non-existent record. Could do the verify though.
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e) {
@@ -151,6 +184,8 @@ namespace ProjectNibbles {
                     listView1.Items.Remove(item);
             }
         }
+
+
     }
 
     // For reference
