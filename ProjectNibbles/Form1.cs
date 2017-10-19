@@ -21,7 +21,7 @@ namespace ProjectNibbles {
         string[] attributes = { "vrn", "vehicle_make", "vehicle_model", "vehicle_registration_year", "seller_type", "vehicle_mileage", "vehicle_colour", "price", "vehicle_not_writeoff", "vehicle_vhc_checked", "url", "location", "mot_expiry" };
         
         public void InitStuff() {
-            //Initialise the FBD and the ordered dictionary with empty strings because a Car class would suck
+            //Initialise the FBD and the ordered dictionary with empty strings to determine order. a Car class would suck
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
@@ -38,7 +38,7 @@ namespace ProjectNibbles {
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
                 foreach (string fileName in openFileDialog1.FileNames) {
                     string fullHTML = File.ReadAllText(fileName);
-                    string dataLayer = ExtractRegex(fullHTML, "var dataLayer = ", "}];") + "}]";
+                    string dataLayer = ExtractRegex(fullHTML, "var dataLayer = ", "}];") + "}]"; //Still a pain to extract
                     //tempBox.AppendText(dataLayer);
                     dynamic obj = JsonConvert.DeserializeObject(dataLayer);
 
@@ -50,7 +50,9 @@ namespace ProjectNibbles {
                     currentCar[attributes[4]] = obj[0].a.attr.seller_type;
                     currentCar[attributes[5]] = obj[0].a.attr.vehicle_mileage;
                     currentCar[attributes[6]] = obj[0].a.attr.vehicle_colour;
-                    currentCar[attributes[7]] = obj[0].a.attr.price;
+                    string price = obj[0].a.attr.price;
+                    price = price.Substring(0, price.Length - 2);
+                    currentCar[attributes[7]] = price;
                     currentCar[attributes[8]] = obj[0].a.attr.vehicle_not_writeoff;
                     currentCar[attributes[9]] = obj[0].a.attr.vehicle_vhc_checked;
 
@@ -75,7 +77,7 @@ namespace ProjectNibbles {
             CommitToDB();
         }
 
-        public bool VerifyRecord(string vrn) {           
+        public bool RecordExists(string vrn) {           
             connect.Open();
             SqlCommand command = connect.CreateCommand();
             command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
@@ -87,7 +89,7 @@ namespace ProjectNibbles {
 
         public void CommitToDB() {
             foreach (ListViewItem row in listView1.Items) {
-                if (VerifyRecord(row.SubItems[0].Text.ToString()) == false) {
+                if (RecordExists(row.SubItems[0].Text.ToString()) == false) {
                     connect.Open();
                     SqlCommand command = connect.CreateCommand();
                     //Concatenators are bad apparently
@@ -131,5 +133,38 @@ namespace ProjectNibbles {
                     listView1.Items.Remove(item);
             }
         }
+    }
+
+    // For reference
+    public class Car {
+        public string vrn, make, model; //etc
+        public int year;
+
+        public Car(string _vrn, string _make, string _model, int _year) {
+            this.vrn = _vrn;
+            this.make = _make;
+            this.model = _model;
+            this.year = _year;
+        }
+
+        public bool CarExistsInDB() {
+            SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
+            connect.Open();
+            SqlCommand command = connect.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
+            command.Parameters.AddWithValue("@vrn", vrn);
+            bool x = ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
+            connect.Close();
+            return x;
+        }
+
+        public int CarAge() {
+            return int.Parse(DateTime.Now.Year.ToString()) - year;
+        }
+
+        public string VRN { get; set; }
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
     }
 }
