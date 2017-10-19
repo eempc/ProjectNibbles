@@ -17,11 +17,16 @@ namespace ProjectNibbles {
             InitStuff();
         }
 
+        //Could replace the OD with class if I can figure out how to loop through a class's properties
         OrderedDictionary currentCar = new OrderedDictionary();
+        //using the same fields in the DB as the JSON will make things easier to loop later
         string[] attributes = { "vrn", "vehicle_make", "vehicle_model", "vehicle_registration_year", "seller_type", "vehicle_mileage", "vehicle_colour", "price", "vehicle_not_writeoff", "vehicle_vhc_checked", "url", "location", "mot_expiry" };
         
+        //Init the SQL connection with connection string (single DB)
+        SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
+
         public void InitStuff() {
-            //Initialise the FBD and the ordered dictionary with empty strings to determine order. a Car class would suck
+            //Initialise the FBD and the ordered dictionary with empty strings to determine order.
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
@@ -30,6 +35,7 @@ namespace ProjectNibbles {
                 currentCar.Add(attr, "");
         }
 
+        //Preview cars in ListView before commiting to DB
         private void button_add_to_list_Click(object sender, EventArgs e) {
             AddToListView();
         }
@@ -42,16 +48,20 @@ namespace ProjectNibbles {
                     //tempBox.AppendText(dataLayer);
                     dynamic obj = JsonConvert.DeserializeObject(dataLayer);
 
-                    //Extracting the JSON data - if only I could loop this...
-                    currentCar[attributes[0]] = obj[0].a.attr.vrn;
+                    //Extracting the JSON data strings and assigning to currentCar OD - if only I could loop this...
+                    string reg = obj[0].a.attr.vrn;
+                    reg = reg.Replace(" ", ""); //Ensure no white space
+
+                    string price = obj[0].a.attr.price;
+                    price = price.Substring(0, price.Length - 2); //Chop off the last two digits of the string price
+
+                    currentCar[attributes[0]] = reg;
                     currentCar[attributes[1]] = obj[0].a.attr.vehicle_make;
                     currentCar[attributes[2]] = obj[0].a.attr.vehicle_model;
                     currentCar[attributes[3]] = obj[0].a.attr.vehicle_registration_year;
                     currentCar[attributes[4]] = obj[0].a.attr.seller_type;
                     currentCar[attributes[5]] = obj[0].a.attr.vehicle_mileage;
                     currentCar[attributes[6]] = obj[0].a.attr.vehicle_colour;
-                    string price = obj[0].a.attr.price;
-                    price = price.Substring(0, price.Length - 2);
                     currentCar[attributes[7]] = price;
                     currentCar[attributes[8]] = obj[0].a.attr.vehicle_not_writeoff;
                     currentCar[attributes[9]] = obj[0].a.attr.vehicle_vhc_checked;
@@ -71,8 +81,7 @@ namespace ProjectNibbles {
             }
         }
 
-        SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
-
+        //Commit contents of ListView to DB, Method names are self-explanatory
         private void button_commit_to_db_Click(object sender, EventArgs e) {
             CommitToDB();
         }
@@ -92,13 +101,13 @@ namespace ProjectNibbles {
                 if (RecordExists(row.SubItems[0].Text.ToString()) == false) {
                     connect.Open();
                     SqlCommand command = connect.CreateCommand();
-                    //Concatenators are bad apparently
+                    //Concatenators are bad apparently. Using string.Join to join the elements of the attributes array, first is with comma, second is with @
                     command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
 
-                    //Implicit conversions from ListViewItem.ToString to the value types in the DB
                     for (int i = 0; i < attributes.Length; i++) 
                         command.Parameters.AddWithValue("@" + attributes[i], row.SubItems[i].Text.ToString());
-                    
+
+                    //Implicit conversions from ListViewItem.ToString to the value types in the DB
                     command.ExecuteNonQuery();
                     connect.Close();
                 }
@@ -116,6 +125,15 @@ namespace ProjectNibbles {
             doc.LoadHtml(source);
             var singleNode = doc.DocumentNode.SelectSingleNode("//body/div/div/div/main/div/header/strong/span");
             return singleNode.InnerText.ToString();
+        }
+
+        public void DeleteRecord(string vrn) {
+            connect.Open();
+            SqlCommand command = connect.CreateCommand();
+            command.CommandText = "DELETE FROM MyCars WHERE vrn = @vrn";
+            command.Parameters.AddWithValue("@vrn", vrn);
+            command.ExecuteNonQuery();
+            connect.Close();
         }
 
         //Temp button
@@ -140,6 +158,7 @@ namespace ProjectNibbles {
         public string vrn, make, model; //etc
         public int year;
 
+        //Constructor. This is how it's done, no questions about what, why...
         public Car(string _vrn, string _make, string _model, int _year) {
             this.vrn = _vrn;
             this.make = _make;
@@ -147,6 +166,7 @@ namespace ProjectNibbles {
             this.year = _year;
         }
 
+        //Custom methods that you can use .Method to access
         public bool CarExistsInDB() {
             SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
             connect.Open();
@@ -162,6 +182,7 @@ namespace ProjectNibbles {
             return int.Parse(DateTime.Now.Year.ToString()) - year;
         }
 
+        //Don't forget this thing, you need it.
         public string VRN { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
