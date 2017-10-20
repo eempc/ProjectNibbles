@@ -30,6 +30,10 @@ namespace ProjectNibbles {
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
+
+            saveFileDialog1.Filter = "CSV (*.csv)|*csv";
+            saveFileDialog1.DefaultExt = "csv";
+            saveFileDialog1.AddExtension = true;
  
             foreach (string attr in attributes)
                 currentCar.Add(attr, "");
@@ -129,7 +133,8 @@ namespace ProjectNibbles {
 
         //Delete part - easy enough, extract reg number from selected ListViewItem
         private void button_delete_Click(object sender, EventArgs e) {
-
+            string selectedVRN = listView2.SelectedItems[0].Text;
+            DeleteRecord(selectedVRN);
         }
 
         //Delete via VRN. Not going to delete by a criteria just yet, e.g. delete all cars with price >5000.
@@ -143,14 +148,14 @@ namespace ProjectNibbles {
         }
 
         private void button_display_all_Click(object sender, EventArgs e) {
-            DisplayAll();
+            DisplayRecords("SELECT * FROM MyCars");
         }
 
         //Display All
-        public void DisplayAll() {
+        public void DisplayRecords(string commandText) {
             connect.Open();
             SqlCommand command = connect.CreateCommand();
-            command.CommandText = "SELECT * FROM MyCars";
+            command.CommandText = commandText;
             SqlDataReader reader = command.ExecuteReader();
 
             listView2.Items.Clear();
@@ -162,12 +167,12 @@ namespace ProjectNibbles {
                 }
                 listView2.Items.Add(car); //Alternative the method done in AddToListView();
             }
-
             connect.Close();
         }
 
+        //To use Selenium or not, that is the question
         private void button_update_record_Click(object sender, EventArgs e) {
-            DateTime dt = new DateTime(2025, 6, 25);
+            DateTime dt = dateTimePicker1.Value;
             string selectedVRN = listView2.SelectedItems[0].Text;
             UpdateMOT(selectedVRN,dt);
         }
@@ -204,15 +209,43 @@ namespace ProjectNibbles {
             }
         }
 
- 
+        private void quitToolStripMenuItem_Click(object sender, EventArgs e) {
+            Application.Exit();
+        }
+
+        private void button_export_csv_Click(object sender, EventArgs e) {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
+                string saveFile = saveFileDialog1.FileName;
+                if (!File.Exists(saveFile)) {
+                    using (StreamWriter writer = File.CreateText(saveFile)) {
+                        foreach (string a in attributes) {
+                            writer.Write(a + ",");
+                        }
+                        writer.Write("\n");
+                    }
+                }
+
+                using (StreamWriter writer = File.AppendText(saveFile)) {
+                    foreach (ListViewItem itemRow in listView2.Items) {
+                        for (int i = 0; i < itemRow.SubItems.Count; i++) {
+                            //tempBox.AppendText(itemRow.SubItems[i].Text + "\n");
+                            writer.Write(itemRow.SubItems[i].Text + ",");
+                        }
+                        writer.Write("\n");
+                    }
+                }
+            }
+
+
+
+        }
     }
 
     // For reference
     public class Car {
-        public string vrn, make, model; //etc
+        public string vrn, make, model;
         public int year;
 
-        //Constructor. This is how it's done, no questions about what, why...
         public Car(string _vrn, string _make, string _model, int _year) {
             this.vrn = _vrn;
             this.make = _make;
@@ -220,14 +253,13 @@ namespace ProjectNibbles {
             this.year = _year;
         }
 
-        //Custom methods that you can use .Method to access
         public bool CarExistsInDB() {
             SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
             connect.Open();
             SqlCommand command = connect.CreateCommand();
             command.CommandText = "SELECT COUNT(*) FROM MyCars WHERE vrn = @vrn";
             command.Parameters.AddWithValue("@vrn", vrn);
-            bool x = ((int)command.ExecuteScalar() <= 0) ? false : true; //It may return a capitalised True/False
+            bool x = ((int)command.ExecuteScalar() <= 0) ? false : true;
             connect.Close();
             return x;
         }
@@ -236,10 +268,10 @@ namespace ProjectNibbles {
             return int.Parse(DateTime.Now.Year.ToString()) - year;
         }
 
-        //Don't forget this thing, you need it.
         public string VRN { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
         public int Year { get; set; }
     }
+
 }
