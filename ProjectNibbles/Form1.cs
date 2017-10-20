@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+//using OpenQA.Selenium.Chrome;
+//using OpenQA.Selenium.Remote;
 
 namespace ProjectNibbles {
     public partial class Form1 : Form {
@@ -26,7 +28,7 @@ namespace ProjectNibbles {
         SqlConnection connect = new SqlConnection(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename=D:\Projects\Visual Studio 2017\ProjectNibbles\ProjectNibbles\MyCars.mdf;Integrated Security = True");
 
         public void InitStuff() {
-            //Initialise the FBD and the ordered dictionary with empty strings to determine order.
+            //Initialise the dialogues and the ordered dictionary with empty strings to determine order.
             openFileDialog1.Multiselect = true;
             openFileDialog1.Title = "HTML file browser";
             openFileDialog1.Filter = "HTML (*.html;*htm)|*.html;*htm|" + "All files (*.*)|*.*";
@@ -39,7 +41,7 @@ namespace ProjectNibbles {
                 currentCar.Add(attr, "");
         }
 
-        //Preview cars in ListView before commiting to DB
+        //Preview cars in ListView1 before commiting to DB
         private void button_add_to_list_Click(object sender, EventArgs e) {
             AddToListView();
         }
@@ -105,7 +107,7 @@ namespace ProjectNibbles {
                 if (RecordExists(row.SubItems[0].Text.ToString()) == false) {
                     connect.Open();
                     SqlCommand command = connect.CreateCommand();
-                    //Concatenators are bad apparently. Using string.Join to join the elements of the attributes array, first is with comma, second is with @
+                    //Join to join the elements of the attributes array, first is with comma, second is with @
                     command.CommandText = "INSERT INTO MyCars (" + string.Join(", ", attributes) + ") VALUES (@" + string.Join(", @", attributes) + ")";
 
                     for (int i = 0; i < attributes.Length; i++) 
@@ -151,7 +153,7 @@ namespace ProjectNibbles {
             DisplayRecords("SELECT * FROM MyCars");
         }
 
-        //Display All
+        //Display All records in ListView2. No sorting in basic ListView, use a better ListView for sorting columns
         public void DisplayRecords(string commandText) {
             connect.Open();
             SqlCommand command = connect.CreateCommand();
@@ -165,7 +167,7 @@ namespace ProjectNibbles {
                 for (int i = 1; i < attributes.Length; i++) {
                     car.SubItems.Add(reader[attributes[i]].ToString());
                 }
-                listView2.Items.Add(car); //Alternative the method done in AddToListView();
+                listView2.Items.Add(car); //Alternative method done for ListView1 in AddToListView();
             }
             connect.Close();
         }
@@ -202,6 +204,7 @@ namespace ProjectNibbles {
             tempBox.AppendText(text);
         }
 
+        //Remove car from Listview 1 staging area
         private void listView1_KeyDown(object sender, KeyEventArgs e) {
             if (Keys.Delete == e.KeyCode) {
                 foreach (ListViewItem item in listView1.SelectedItems)
@@ -213,11 +216,12 @@ namespace ProjectNibbles {
             Application.Exit();
         }
 
+        //CSV Export of ListView 2
         private void button_export_csv_Click(object sender, EventArgs e) {
             if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
                 string saveFile = saveFileDialog1.FileName;
                 if (!File.Exists(saveFile)) {
-                    using (StreamWriter writer = File.CreateText(saveFile)) {
+                    using (StreamWriter writer = File.CreateText(saveFile)) { //Create
                         foreach (string a in attributes) {
                             writer.Write(a + ",");
                         }
@@ -225,19 +229,41 @@ namespace ProjectNibbles {
                     }
                 }
 
-                using (StreamWriter writer = File.AppendText(saveFile)) {
+                using (StreamWriter writer = File.AppendText(saveFile)) { //Append
                     foreach (ListViewItem itemRow in listView2.Items) {
                         for (int i = 0; i < itemRow.SubItems.Count; i++) {
-                            //tempBox.AppendText(itemRow.SubItems[i].Text + "\n");
                             writer.Write(itemRow.SubItems[i].Text + ",");
                         }
-                        writer.Write("\n");
+                        writer.Write("\n"); //Might be interesting to see how Linux does "\n" differently
                     }
                 }
             }
 
 
 
+        }
+
+        private void button_Selenium_MOT_Click(object sender, EventArgs e) {
+            string sourceHTML = SeleniumGovScrape(listView2.SelectedItems[0].Text);
+            //Etc
+        }
+
+        public string SeleniumGovScrape(string vrn) {
+            //RemoteWebDriver driver = new ChromeDriver();
+            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
+            //driver.Navigate().GoToUrl(vehicleCheckURL);
+            //driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(15);
+            //driver.FindElementById("Vrm").SendKeys(vrn);
+            //driver.FindElementByName("Continue").Submit();
+            //driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(15);
+            //System.Threading.Thread.Sleep(1000);
+            //driver.FindElementByName("Correct").Click();
+            //driver.FindElementByName("Continue").Submit();
+            //driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(15);
+            //string pageSource = driver.PageSource;
+            //driver.Quit();
+            //return pageSource;
+            return "Test";
         }
     }
 
